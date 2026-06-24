@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feedback Loop — Kodara Beta Launch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --brand:#106844; --brand-strong:rgba(16,104,68,0.92); --brand-soft:rgba(16,104,68,0.06);
+    --ink:rgba(26,26,26,0.80); --muted:rgba(26,26,26,0.55); --faint:rgba(26,26,26,0.40);
+    --line:rgba(26,26,26,0.09); --line-soft:rgba(26,26,26,0.06); --track:rgba(26,26,26,0.06);
+    --bg:#F6F7F5; --surface:#FFFFFF; --good:#106844; --heat:#C99A06;
+    --shadow-card:0px 8px 5px rgba(0,0,0,0.01),0px 4px 4px rgba(0,0,0,0.02),0px 1px 2px rgba(0,0,0,0.02);
+    --font:'Instrument Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --serif:'Instrument Serif',Georgia,serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--font);background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;overflow:hidden;}
+  .stage{max-width:1180px;margin:0 auto;padding:26px 24px;height:100vh;display:flex;flex-direction:column;}
+  .topbar{display:flex;justify-content:space-between;align-items:center;}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;color:var(--ink);}
+  .brand .dot{width:22px;height:22px;border-radius:6px;background:var(--brand);}
+  .eyebrow{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--brand-strong);}
+  .head{margin:18px 0 6px;}
+  .head h1{font-family:var(--serif);font-size:28px;font-weight:500;letter-spacing:-.5px;color:var(--ink);}
+  .head p{font-size:14px;color:var(--muted);margin-top:4px;max-width:640px;font-weight:500;}
+
+  .scene{flex:1;display:grid;grid-template-columns:330px 1fr 420px;gap:0;align-items:center;position:relative;min-height:0;}
+  #flow{position:absolute;inset:0;z-index:2;pointer-events:none;}
+
+  /* PHONE holding the real demo in an iframe */
+  .phone-col{display:flex;flex-direction:column;align-items:center;gap:12px;z-index:3;}
+  .phone{position:relative;width:312px;height:632px;border-radius:44px;background:#1a1a1a;
+    border:10px solid #1a1a1a;box-shadow:0 24px 60px rgba(26,26,26,.22),0 4px 12px rgba(26,26,26,.10);overflow:hidden;}
+  .notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:128px;height:26px;background:#1a1a1a;border-radius:0 0 16px 16px;z-index:6;}
+  .screen{position:absolute;inset:0;background:#fff;overflow:hidden;border-radius:34px;}
+  .screen iframe{width:100%;height:100%;border:0;display:block;pointer-events:none;background:#fff;}
+  .heat{position:absolute;inset:0;pointer-events:none;z-index:5;}
+  .bloom{position:absolute;width:96px;height:96px;border-radius:50%;transform:translate(-50%,-50%) scale(.2);
+    background:radial-gradient(circle,rgba(201,154,6,.42) 0%,rgba(16,104,68,.20) 45%,transparent 70%);
+    animation:bloom 1.7s ease-out forwards;mix-blend-mode:multiply;}
+  @keyframes bloom{0%{transform:translate(-50%,-50%) scale(.2);opacity:.9;}100%{transform:translate(-50%,-50%) scale(1.6);opacity:0;}}
+  .tapdot{position:absolute;width:20px;height:20px;border-radius:50%;border:2px solid rgba(16,104,68,.85);
+    transform:translate(-50%,-50%) scale(.4);background:rgba(16,104,68,.18);z-index:6;animation:tap .7s ease-out forwards;}
+  @keyframes tap{0%{opacity:.9;transform:translate(-50%,-50%) scale(.4);}100%{opacity:0;transform:translate(-50%,-50%) scale(1.5);}}
+  .phone-cap{font-size:12px;color:var(--muted);text-align:center;font-weight:500;}
+  .phone-cap b{color:var(--ink);}
+
+  /* BACKEND */
+  .backend{justify-self:end;width:100%;max-width:420px;z-index:3;
+    background:var(--surface);border:1px solid var(--line-soft);border-radius:18px;padding:20px;box-shadow:var(--shadow-card);}
+  .bh{display:flex;align-items:center;gap:9px;margin-bottom:14px;}
+  .bh .ic{width:30px;height:30px;border-radius:9px;background:var(--brand-soft);display:flex;align-items:center;justify-content:center;font-size:15px;}
+  .bh h3{font-size:14px;font-weight:700;color:var(--ink);} .bh span{font-size:11px;color:var(--brand-strong);font-weight:500;}
+  .kgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+  .kc{background:var(--bg);border:1px solid var(--line-soft);border-radius:12px;padding:12px 13px;}
+  .kc .v{font-size:24px;font-weight:600;letter-spacing:-.5px;color:var(--ink);font-variant-numeric:tabular-nums;}
+  .kc .k{font-size:11px;color:var(--muted);margin-top:2px;font-weight:500;}
+  .kc .v small{font-size:11px;color:var(--good);font-weight:700;}
+  .kc.flash{animation:flash .6s ease;}
+  @keyframes flash{0%{box-shadow:0 0 0 0 rgba(16,104,68,.45);}100%{box-shadow:0 0 0 12px rgba(16,104,68,0);}}
+  .blabel{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:9px;}
+  .cats .row{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:12px;}
+  .cats .row .nm{width:132px;color:var(--ink);font-weight:500;}
+  .cats .row .tr{flex:1;height:7px;background:var(--track);border-radius:999px;overflow:hidden;}
+  .cats .row .tr i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#1f9c64,#106844);transition:width 1.4s cubic-bezier(.22,1,.36,1);}
+  .cats .row .pc{width:34px;text-align:right;color:var(--muted);font-weight:600;font-size:11px;}
+  .foot{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:11px;color:var(--muted);border-top:1px solid var(--line-soft);padding-top:12px;font-weight:500;}
+  .foot b{color:var(--good);}
+  .note{font-size:11px;color:var(--faint);text-align:center;letter-spacing:.3px;padding-top:10px;}
+  /* embed mode (?embed=1): drop the header the host slide already shows */
+  body.embed .topbar,body.embed .head,body.embed .note{display:none;}
+  body.embed .stage{padding:18px 24px;}
+  body.embed .scene{align-items:center;}
+  @media(max-width:1000px){.scene{grid-template-columns:300px 1fr;}.backend{display:none;}}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="topbar">
+    <div class="brand"><span class="dot"></span>Kodara</div>
+    <div class="eyebrow">Step 2 · Scientific Feedback &amp; Validation</div>
+  </div>
+  <div class="head">
+    <h1>Every real interaction trains your AI.</h1>
+    <p>A handful of your existing clients use the real product first. Each tap, answer, and step streams back as data, so you launch to the whole audience already proven.</p>
+  </div>
+
+  <div class="scene">
+    <canvas id="flow"></canvas>
+
+    <div class="phone-col">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen">
+          <iframe id="demo" src="index.html?nonav=1" title="Live demo" scrolling="no"></iframe>
+        </div>
+        <div class="heat" id="heat"></div>
+      </div>
+      <div class="phone-cap"><b>Beta client</b> · live session</div>
+    </div>
+
+    <div></div><!-- canvas draws streams across this gap -->
+
+    <div class="backend">
+      <div class="bh">
+        <div class="ic">🧠</div>
+        <div><h3>Your training backend</h3><span>aggregating beta signals · live</span></div>
+      </div>
+      <div class="kgrid">
+        <div class="kc" id="kc-sessions"><div class="v">12</div><div class="k">Sessions captured</div></div>
+        <div class="kc" id="kc-signals"><div class="v">0</div><div class="k">Training signals fed back</div></div>
+        <div class="kc" id="kc-sat"><div class="v">0%</div><div class="k">Client satisfaction</div></div>
+        <div class="kc" id="kc-cov"><div class="v">0%</div><div class="k">Coverage <small>▲</small></div></div>
+      </div>
+      <div class="blabel">Coverage filling from real usage</div>
+      <div class="cats" id="cats">
+        <div class="row"><span class="nm">Root-cause discovery</span><span class="tr"><i data-to="96"></i></span><span class="pc">0%</span></div>
+        <div class="row"><span class="nm">Triggers &amp; cravings</span><span class="tr"><i data-to="91"></i></span><span class="pc">0%</span></div>
+        <div class="row"><span class="nm">Staying on track</span><span class="tr"><i data-to="88"></i></span><span class="pc">0%</span></div>
+        <div class="row"><span class="nm">Handling relapse fear</span><span class="tr"><i data-to="74"></i></span><span class="pc">0%</span></div>
+      </div>
+      <div class="foot">✓ <b>Validated against your standards</b> — ready for full rollout</div>
+    </div>
+  </div>
+
+  <p class="note">DEMO · Beta Launch feedback loop — real Sandra AI demo in-frame → heatmap → backend training signals</p>
+</div>
+
+<script>
+// ponytail: scripted overlay, no libs. The real demo plays in the iframe untouched;
+// we layer simulated taps/heat over it and stream particles to the backend on a timer.
+if(location.search.includes('embed')) document.body.classList.add('embed');
+
+// hide the demo's built-in stage-jumper nav when same-origin (belt; ?nonav handles cross-origin)
+const demoFrame=document.getElementById('demo');
+demoFrame.addEventListener('load',()=>{
+  try{const d=demoFrame.contentDocument; if(!d)return;
+    const s=d.createElement('style'); s.textContent='.demo-navigator{display:none!important}';
+    d.head.appendChild(s);
+  }catch(e){/* cross-origin: ?nonav on the source handles it */}
+});
+
+const heat=document.getElementById('heat');
+const canvas=document.getElementById('flow');
+const ctx=canvas.getContext('2d');
+const elSessions=q('#kc-sessions'), elSignals=q('#kc-signals'), elSat=q('#kc-sat'), elCov=q('#kc-cov');
+function q(s){return document.querySelector(s);}
+function setV(card,val){card.querySelector('.v').childNodes[0].nodeValue=val;}
+
+let signals=0, sessions=12, taps=0;
+
+let particles=[];
+function resize(){canvas.width=canvas.offsetWidth;canvas.height=canvas.offsetHeight;}
+addEventListener('resize',resize); resize();
+
+function phonePoint(){const p=q('.phone').getBoundingClientRect(),c=canvas.getBoundingClientRect();
+  return {x:p.right-c.left-26,y:p.top-c.top+p.height*(0.3+Math.random()*0.45)};}
+function backendPoint(){const b=q('.backend').getBoundingClientRect(),c=canvas.getBoundingClientRect();
+  return {x:b.left-c.left+20,y:b.top-c.top+28+Math.random()*70};}
+function emit(){const s=phonePoint(),e=backendPoint();
+  particles.push({s,e,t:0,sp:0.012+Math.random()*0.01,cx:(s.x+e.x)/2,cy:Math.min(s.y,e.y)-40-Math.random()*40});}
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach(p=>{
+    p.t+=p.sp; const u=p.t,iu=1-u;
+    const x=iu*iu*p.s.x+2*iu*u*p.cx+u*u*p.e.x, y=iu*iu*p.s.y+2*iu*u*p.cy+u*u*p.e.y;
+    const g=ctx.createRadialGradient(x,y,0,x,y,7);
+    g.addColorStop(0,'rgba(16,104,68,.95)'); g.addColorStop(1,'rgba(16,104,68,0)');
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,7,0,7); ctx.fill();
+    if(p.t>=1 && !p.done){p.done=true; onArrive();}
+  });
+  particles=particles.filter(p=>p.t<1.05);
+  requestAnimationFrame(draw);
+}
+draw();
+
+function onArrive(){
+  signals++; setV(elSignals,signals.toLocaleString());
+  elSignals.classList.add('flash'); setTimeout(()=>elSignals.classList.remove('flash'),600);
+  setV(elSat, Math.min(98, 84+Math.round(signals/4))+'%');
+  setV(elCov, Math.min(92, 38+signals*2)+'%');
+}
+
+function interact(){
+  const w=heat.offsetWidth,h=heat.offsetHeight;
+  const x=w*(0.18+Math.random()*0.64), y=h*(0.2+Math.random()*0.62);
+  const b=document.createElement('div'); b.className='bloom'; b.style.left=x+'px'; b.style.top=y+'px';
+  heat.appendChild(b); setTimeout(()=>b.remove(),1700);
+  const d=document.createElement('div'); d.className='tapdot'; d.style.left=x+'px'; d.style.top=y+'px';
+  heat.appendChild(d); setTimeout(()=>d.remove(),700);
+  emit(); if(Math.random()>0.5) emit();
+  if(++taps%3===0){sessions++; setV(elSessions,sessions);
+    elSessions.classList.add('flash'); setTimeout(()=>elSessions.classList.remove('flash'),600);}
+}
+(function loop(){ interact(); setTimeout(loop, 1400+Math.random()*1400); })();
+
+setTimeout(()=>{
+  document.querySelectorAll('#cats .row').forEach((row,idx)=>setTimeout(()=>{
+    const i=row.querySelector('i'), pc=row.querySelector('.pc'), to=+i.dataset.to;
+    i.style.width=to+'%'; let n=0;
+    const t=setInterval(()=>{n+=Math.ceil(to/28); if(n>=to){n=to;clearInterval(t);} pc.textContent=n+'%';},45);
+  }, idx*350));
+}, 700);
+</script>
+</body>
+</html>
