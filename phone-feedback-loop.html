@@ -12,34 +12,37 @@
     --brand:#106844; --brand-strong:rgba(16,104,68,0.92); --brand-soft:rgba(16,104,68,0.06);
     --ink:rgba(26,26,26,0.80); --muted:rgba(26,26,26,0.55); --faint:rgba(26,26,26,0.40);
     --line:rgba(26,26,26,0.09); --line-soft:rgba(26,26,26,0.06); --track:rgba(26,26,26,0.06);
-    --bg:#F6F7F5; --surface:#FFFFFF; --good:#106844; --heat:#C99A06;
+    --bg:#F6F7F5; --surface:#FFFFFF; --good:#106844;
     --shadow-card:0px 8px 5px rgba(0,0,0,0.01),0px 4px 4px rgba(0,0,0,0.02),0px 1px 2px rgba(0,0,0,0.02);
     --font:'Instrument Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     --serif:'Instrument Serif',Georgia,serif;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:var(--font);background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;overflow:hidden;}
-  .stage{max-width:1180px;margin:0 auto;padding:26px 24px;height:100vh;display:flex;flex-direction:column;}
+  html,body{height:100%;}
+  body{font-family:var(--font);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;overflow:hidden;}
+  .stage{height:100vh;display:flex;flex-direction:column;padding:clamp(12px,2.4vh,26px) clamp(14px,2.2vw,28px);}
   .topbar{display:flex;justify-content:space-between;align-items:center;}
   .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;color:var(--ink);}
   .brand .dot{width:22px;height:22px;border-radius:6px;background:var(--brand);}
   .eyebrow{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--brand-strong);}
-  .head{margin:18px 0 6px;}
+  .head{margin:16px 0 4px;}
   .head h1{font-family:var(--serif);font-size:28px;font-weight:500;letter-spacing:-.5px;color:var(--ink);}
   .head p{font-size:14px;color:var(--muted);margin-top:4px;max-width:640px;font-weight:500;}
 
-  .scene{flex:1;display:grid;grid-template-columns:330px 1fr 420px;gap:0;align-items:center;position:relative;min-height:0;}
+  /* FLUID scene: phone + backend scale to the viewport, no transform tricks */
+  .scene{flex:1;display:flex;align-items:center;justify-content:center;gap:clamp(20px,5vw,80px);position:relative;min-height:0;}
   #flow{position:absolute;inset:0;z-index:2;pointer-events:none;}
 
-  /* PHONE holding the real demo in an iframe */
-  .phone-col{display:flex;flex-direction:column;align-items:center;gap:12px;z-index:3;}
-  .phone{position:relative;width:312px;height:632px;border-radius:44px;background:#1a1a1a;
-    border:10px solid #1a1a1a;box-shadow:0 24px 60px rgba(26,26,26,.22),0 4px 12px rgba(26,26,26,.10);overflow:hidden;}
-  .notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:128px;height:26px;background:#1a1a1a;border-radius:0 0 16px 16px;z-index:6;}
-  .screen{position:absolute;inset:0;background:#fff;overflow:hidden;border-radius:34px;}
-  .screen iframe{width:100%;height:100%;border:0;display:block;pointer-events:none;background:#fff;}
+  .phone-col{display:flex;flex-direction:column;align-items:center;gap:clamp(6px,1.2vh,12px);height:100%;justify-content:center;min-height:0;z-index:3;}
+  .phone{position:relative;height:min(calc(100% - 26px),632px);aspect-ratio:312/632;
+    border-radius:clamp(28px,4.6vh,44px);background:#1a1a1a;border:clamp(7px,1.4vh,10px) solid #1a1a1a;
+    box-shadow:0 24px 60px rgba(26,26,26,.22),0 4px 12px rgba(26,26,26,.10);overflow:hidden;flex-shrink:0;}
+  .notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:38%;height:clamp(16px,3.6vh,26px);background:#1a1a1a;border-radius:0 0 14px 14px;z-index:6;}
+  .screen{position:absolute;inset:0;background:#fff;overflow:hidden;border-radius:clamp(20px,3.6vh,34px);}
+  /* render the Sandra app at a true mobile width, then scale it to fill the phone screen */
+  .screen iframe{position:absolute;top:0;left:0;border:0;display:block;pointer-events:none;background:#fff;transform-origin:top left;}
   .heat{position:absolute;inset:0;pointer-events:none;z-index:5;}
-  .bloom{position:absolute;width:96px;height:96px;border-radius:50%;transform:translate(-50%,-50%) scale(.2);
+  .bloom{position:absolute;border-radius:50%;transform:translate(-50%,-50%) scale(.2);
     background:radial-gradient(circle,rgba(201,154,6,.42) 0%,rgba(16,104,68,.20) 45%,transparent 70%);
     animation:bloom 1.7s ease-out forwards;mix-blend-mode:multiply;}
   @keyframes bloom{0%{transform:translate(-50%,-50%) scale(.2);opacity:.9;}100%{transform:translate(-50%,-50%) scale(1.6);opacity:0;}}
@@ -49,9 +52,8 @@
   .phone-cap{font-size:12px;color:var(--muted);text-align:center;font-weight:500;}
   .phone-cap b{color:var(--ink);}
 
-  /* BACKEND */
-  .backend{justify-self:end;width:100%;max-width:420px;z-index:3;
-    background:var(--surface);border:1px solid var(--line-soft);border-radius:18px;padding:20px;box-shadow:var(--shadow-card);}
+  .backend{width:clamp(280px,30vw,420px);flex-shrink:0;z-index:3;align-self:center;
+    background:var(--surface);border:1px solid var(--line-soft);border-radius:18px;padding:clamp(14px,1.5vw,20px);box-shadow:var(--shadow-card);}
   .bh{display:flex;align-items:center;gap:9px;margin-bottom:14px;}
   .bh .ic{width:30px;height:30px;border-radius:9px;background:var(--brand-soft);display:flex;align-items:center;justify-content:center;font-size:15px;}
   .bh h3{font-size:14px;font-weight:700;color:var(--ink);} .bh span{font-size:11px;color:var(--brand-strong);font-weight:500;}
@@ -59,7 +61,6 @@
   .kc{background:var(--bg);border:1px solid var(--line-soft);border-radius:12px;padding:12px 13px;}
   .kc .v{font-size:24px;font-weight:600;letter-spacing:-.5px;color:var(--ink);font-variant-numeric:tabular-nums;}
   .kc .k{font-size:11px;color:var(--muted);margin-top:2px;font-weight:500;}
-  .kc .v small{font-size:11px;color:var(--good);font-weight:700;}
   .kc.flash{animation:flash .6s ease;}
   @keyframes flash{0%{box-shadow:0 0 0 0 rgba(16,104,68,.45);}100%{box-shadow:0 0 0 12px rgba(16,104,68,0);}}
   .blabel{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:9px;}
@@ -70,12 +71,12 @@
   .cats .row .pc{width:34px;text-align:right;color:var(--muted);font-weight:600;font-size:11px;}
   .foot{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:11px;color:var(--muted);border-top:1px solid var(--line-soft);padding-top:12px;font-weight:500;}
   .foot b{color:var(--good);}
-  .note{font-size:11px;color:var(--faint);text-align:center;letter-spacing:.3px;padding-top:10px;}
-  /* embed mode (?embed=1): drop the header the host slide already shows */
+  .note{font-size:11px;color:var(--faint);text-align:center;letter-spacing:.3px;padding-top:8px;}
+  /* embed mode (?embed=1): drop the header the host slide already shows so the phone gets full height */
   body.embed .topbar,body.embed .head,body.embed .note{display:none;}
-  body.embed .stage{padding:18px 24px;}
-  body.embed .scene{align-items:center;}
-  @media(max-width:1000px){.scene{grid-template-columns:300px 1fr;}.backend{display:none;}}
+  body.embed .stage{padding:clamp(12px,2.4vh,22px) clamp(14px,2.2vw,26px);}
+  /* narrow embeds: drop the backend, keep the phone centered and large */
+  @media(max-width:720px){.backend{display:none;}}
 </style>
 </head>
 <body>
@@ -103,8 +104,6 @@
       <div class="phone-cap"><b>Beta client</b> · live session</div>
     </div>
 
-    <div></div><!-- canvas draws streams across this gap -->
-
     <div class="backend">
       <div class="bh">
         <div class="ic">🧠</div>
@@ -114,7 +113,7 @@
         <div class="kc" id="kc-sessions"><div class="v">12</div><div class="k">Sessions captured</div></div>
         <div class="kc" id="kc-signals"><div class="v">0</div><div class="k">Training signals fed back</div></div>
         <div class="kc" id="kc-sat"><div class="v">0%</div><div class="k">Client satisfaction</div></div>
-        <div class="kc" id="kc-cov"><div class="v">0%</div><div class="k">Coverage <small>▲</small></div></div>
+        <div class="kc" id="kc-cov"><div class="v">0%</div><div class="k">Coverage ▲</div></div>
       </div>
       <div class="blabel">Coverage filling from real usage</div>
       <div class="cats" id="cats">
@@ -131,18 +130,30 @@
 </div>
 
 <script>
-// ponytail: scripted overlay, no libs. The real demo plays in the iframe untouched;
-// we layer simulated taps/heat over it and stream particles to the backend on a timer.
+// ponytail: fully fluid layout, no transform scaling. Real demo plays in the iframe;
+// we overlay simulated taps/heat and stream particles to the backend.
 if(location.search.includes('embed')) document.body.classList.add('embed');
 
-// hide the demo's built-in stage-jumper nav when same-origin (belt; ?nonav handles cross-origin)
+// hide the demo's stage-jumper when same-origin (belt; ?nonav on the source handles cross-origin)
 const demoFrame=document.getElementById('demo');
 demoFrame.addEventListener('load',()=>{
   try{const d=demoFrame.contentDocument; if(!d)return;
     const s=d.createElement('style'); s.textContent='.demo-navigator{display:none!important}';
     d.head.appendChild(s);
-  }catch(e){/* cross-origin: ?nonav on the source handles it */}
+  }catch(e){/* cross-origin: ?nonav handles it */}
 });
+
+// render the Sandra app at a fixed mobile design width and scale it to the phone screen
+const screenEl=demoFrame.parentElement;
+function fitScreen(){
+  const w=screenEl.clientWidth, h=screenEl.clientHeight; if(!w) return;
+  const DW=390, s=w/DW;
+  demoFrame.style.width=DW+'px';
+  demoFrame.style.height=(h/s)+'px';
+  demoFrame.style.transform='scale('+s+')';
+}
+if(window.ResizeObserver) new ResizeObserver(fitScreen).observe(screenEl);
+addEventListener('resize',fitScreen); fitScreen();
 
 const heat=document.getElementById('heat');
 const canvas=document.getElementById('flow');
@@ -152,15 +163,15 @@ function q(s){return document.querySelector(s);}
 function setV(card,val){card.querySelector('.v').childNodes[0].nodeValue=val;}
 
 let signals=0, sessions=12, taps=0;
-
 let particles=[];
 function resize(){canvas.width=canvas.offsetWidth;canvas.height=canvas.offsetHeight;}
 addEventListener('resize',resize); resize();
 
 function phonePoint(){const p=q('.phone').getBoundingClientRect(),c=canvas.getBoundingClientRect();
-  return {x:p.right-c.left-26,y:p.top-c.top+p.height*(0.3+Math.random()*0.45)};}
-function backendPoint(){const b=q('.backend').getBoundingClientRect(),c=canvas.getBoundingClientRect();
-  return {x:b.left-c.left+20,y:b.top-c.top+28+Math.random()*70};}
+  return {x:p.right-c.left-p.width*0.1,y:p.top-c.top+p.height*(0.3+Math.random()*0.45)};}
+function backendPoint(){const b=q('.backend'); if(!b||!b.offsetParent){const c=canvas.getBoundingClientRect();return {x:c.width-20,y:c.height*0.4};}
+  const r=b.getBoundingClientRect(),c=canvas.getBoundingClientRect();
+  return {x:r.left-c.left+20,y:r.top-c.top+28+Math.random()*70};}
 function emit(){const s=phonePoint(),e=backendPoint();
   particles.push({s,e,t:0,sp:0.012+Math.random()*0.01,cx:(s.x+e.x)/2,cy:Math.min(s.y,e.y)-40-Math.random()*40});}
 function draw(){
@@ -186,9 +197,11 @@ function onArrive(){
 }
 
 function interact(){
-  const w=heat.offsetWidth,h=heat.offsetHeight;
+  const w=heat.offsetWidth,h=heat.offsetHeight; if(!w) return;
+  const size=Math.round(w*0.34);
   const x=w*(0.18+Math.random()*0.64), y=h*(0.2+Math.random()*0.62);
-  const b=document.createElement('div'); b.className='bloom'; b.style.left=x+'px'; b.style.top=y+'px';
+  const b=document.createElement('div'); b.className='bloom';
+  b.style.cssText='left:'+x+'px;top:'+y+'px;width:'+size+'px;height:'+size+'px';
   heat.appendChild(b); setTimeout(()=>b.remove(),1700);
   const d=document.createElement('div'); d.className='tapdot'; d.style.left=x+'px'; d.style.top=y+'px';
   heat.appendChild(d); setTimeout(()=>d.remove(),700);
